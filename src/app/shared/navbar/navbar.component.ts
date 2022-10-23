@@ -10,34 +10,46 @@ import { Location, PopStateEvent } from '@angular/common';
 export class NavbarComponent implements OnInit {
     public isCollapsed = true;
     private lastPoppedUrl: string;
+    public usuario: string
+    public mostrar = false
     private yScrollStack: number[] = [];
 
     constructor(public location: Location, private router: Router) {
     }
 
     ngOnInit() {
-      this.router.events.subscribe((event) => {
-        this.isCollapsed = true;
-        if (event instanceof NavigationStart) {
-           if (event.url != this.lastPoppedUrl)
-               this.yScrollStack.push(window.scrollY);
-       } else if (event instanceof NavigationEnd) {
-           if (event.url == this.lastPoppedUrl) {
-               this.lastPoppedUrl = undefined;
-               window.scrollTo(0, this.yScrollStack.pop());
-           } else
-               window.scrollTo(0, 0);
-       }
-     });
-     this.location.subscribe((ev:PopStateEvent) => {
-         this.lastPoppedUrl = ev.url;
-     });
+
+        if (localStorage.getItem('token')) {
+            this.mostrar = false
+        } else {
+            this.mostrar = true
+        }
+        if(localStorage.getItem('usuario')){
+            this.usuario = localStorage.getItem('usuario')
+        }
+
+        this.router.events.subscribe((event) => {
+            this.isCollapsed = true;
+            if (event instanceof NavigationStart) {
+                if (event.url != this.lastPoppedUrl)
+                    this.yScrollStack.push(window.scrollY);
+            } else if (event instanceof NavigationEnd) {
+                if (event.url == this.lastPoppedUrl) {
+                    this.lastPoppedUrl = undefined;
+                    window.scrollTo(0, this.yScrollStack.pop());
+                } else
+                    window.scrollTo(0, 0);
+            }
+        });
+        this.location.subscribe((ev: PopStateEvent) => {
+            this.lastPoppedUrl = ev.url;
+        });
     }
 
     isHome() {
         var titlee = this.location.prepareExternalUrl(this.location.path());
 
-        if( titlee === '#/home' ) {
+        if (titlee === '#/home') {
             return true;
         }
         else {
@@ -46,11 +58,17 @@ export class NavbarComponent implements OnInit {
     }
     isDocumentation() {
         var titlee = this.location.prepareExternalUrl(this.location.path());
-        if( titlee === '#/documentation' ) {
+        if (titlee === '#/documentation') {
             return true;
         }
         else {
             return false;
         }
     }
+     cerrar() {
+        console.log('click aca')
+        localStorage.setItem('token', '');
+        localStorage.removeItem('token')
+        this.router.navigate(['/login']);
+     }
 }
